@@ -466,7 +466,7 @@ def construct_estimator(flags_obj, params, schedule_manager):
   """
   if not params["use_tpu"]:
     distribution_strategy = distribution_utils.get_distribution_strategy(
-        flags_obj)
+        flags_core.get_num_gpus(flags_obj))
     return tf.estimator.Estimator(
         model_fn=model_fn, model_dir=flags_obj.model_dir, params=params,
         config=tf.estimator.RunConfig(train_distribute=distribution_strategy))
@@ -523,7 +523,7 @@ def run_transformer(flags_obj):
   else:
     params["batch_size"] = distribution_utils.per_device_batch_size(
         flags_obj.batch_size or params["default_batch_size"],
-        flags_obj.num_gpus)
+        flags_core.get_num_gpus(flags_obj))
 
   schedule_manager = schedule.Manager(
       train_steps=flags_obj.train_steps,

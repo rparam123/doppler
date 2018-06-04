@@ -334,8 +334,9 @@ def resnet_main(
       intra_op_parallelism_threads=flags_obj.intra_op_parallelism_threads,
       allow_soft_placement=True)
 
+  num_gpus = flags_core.get_num_gpus(flags_obj)
   distribution_strategy = distribution_utils.get_distribution_strategy(
-      flags_obj)
+      num_gpus)
 
   run_config = tf.estimator.RunConfig(
       train_distribute=distribution_strategy, session_config=session_config)
@@ -374,14 +375,14 @@ def resnet_main(
     return input_function(
         is_training=True, data_dir=flags_obj.data_dir,
         batch_size=distribution_utils.per_device_batch_size(
-            flags_obj.batch_size, flags_core.get_num_gpus(flags_obj)),
+            flags_obj.batch_size, num_gpus),
         num_epochs=flags_obj.epochs_between_evals)
 
   def input_fn_eval():
     return input_function(
         is_training=False, data_dir=flags_obj.data_dir,
         batch_size=distribution_utils.per_device_batch_size(
-            flags_obj.batch_size, flags_core.get_num_gpus(flags_obj)),
+            flags_obj.batch_size, num_gpus),
         num_epochs=1)
   total_training_cycle = (flags_obj.train_epochs //
                           flags_obj.epochs_between_evals)
